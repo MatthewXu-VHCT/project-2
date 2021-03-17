@@ -12,9 +12,12 @@
 #include <Servo.h>
 
 //dht functions and pins
+//*********************************************************************************************
+//**********the DHT 22 (Temp & Humid sensor is connected to pin 5 on Feather) ******************
 #define DHTPIN 5
 #define DHTTYPE DHT22
 DHT dht(DHTPIN, DHTTYPE);
+//*********************************************************************************************
 
 //led pins
 #define LED1 13
@@ -53,13 +56,16 @@ void setup() {
       thing["LED1"]<< digitalPin(LED1);
       thing["LED2"]<< digitalPin(LED2);
 
+ //*********************************************************************************************
+ //reading data from the DHT sensor
     //sensor 
     thing["dht22"] >> [](pson& out){
     // Add the values and the corresponding code
       out["celsius"] = dht.readTemperature();
       out["humidity"] = dht.readHumidity();
     };
-
+//*********************************************************************************************
+  
   //servo control
     ///// stop speed
   thing["SERVOstop"] << [] (pson & in) {
