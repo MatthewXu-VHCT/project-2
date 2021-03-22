@@ -1,6 +1,7 @@
 var thingerUrl = ["https://api.thinger.io/v3/users/xumengh/devices/esp8266/resources/", "?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJEYXNoYm9hcmRfcHJvamVjdF8zIiwidXNyIjoieHVtZW5naCJ9.hn9JVD772mlFSy1YdbThtDKGddhU_uM_T2NyqDGLLxw"]
 
-var resources = ["LED1", "LED2", "dht22", "SERVOstop", "SERVOforward"];
+//0,1,2,3,4,5,6
+var resources = ["LED1", "LED2", "dhtTemp", "dhtHumi", "SERVOstop", "SERVOforward"];
 
 var Auth = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJTZXJ2b1NlbnNvckNvbnRyb2xzIiwidXNyIjoieHVtZW5naCJ9.kADKGDBQ_nJDxRPHQ2XF4J9ZxcRdtdtCNXAdcLBzxRA";
 
@@ -11,19 +12,16 @@ var ledButton1;
 var ledButton2;
 var servoStop;
 var servoFor;
-var DHTsensor;
+var DHT;
+var DHTsensorTem;
+var DHTsensorHum;
 
 var url = [];
-
-var temp;
 
 function setup() {
     //// make the canvas whatever size you require
     createCanvas(windowWidth, windowHeight);
 
-    fill(0);
-    textSize(22);
-    temp = text('Temperature, 19.6 C', width, 40);
 
     for (let i = 0; i < resources.length; i++) {
         url[i] = thingerUrl[0] + resources[i] + thingerUrl[1];
@@ -35,8 +33,8 @@ function setup() {
     ledButton1 = createButton('LED1')
         .style('border', '2px solid #83EE9E')
         .position(width / 2 - 100, height / 6)
-        .mousePressed(ledOn1)
-        .mouseReleased(ledOff1)
+        .mouseClicked(ledOn1)
+        .doubleClicked(ledOff1)
         .mouseOver(() => (ledButton1.style('background-color', "#F3F8FF")))
         .mouseOut(() => (ledButton1.style('background-color', "#83EE9E")));
 
@@ -44,24 +42,24 @@ function setup() {
     ledButton2 = createButton('LED2')
         .style('border', '2px solid #83EE9E')
         .position(width / 2 - 100, height / 6 + 120)
-        .mousePressed(ledOn2)
-        .mouseReleased(ledOff2)
+        .mouseClicked(ledOn2)
+        .doubleClicked(ledOff2)
         .mouseOver(() => (ledButton2.style('background-color', "#F3F8FF")))
         .mouseOut(() => (ledButton2.style('background-color', "#83EE9E")));
 
     servoStop = createButton('Stop')
         .style('border', '2px solid #83EE9E')
         .position(width / 2 - 100, height / 2)
-        .mousePressed(servoStopT)
-        .mouseReleased(servoStopF)
+        .mouseClicked(servoStopT)
+        .doubleClicked(servoStopF)
         .mouseOver(() => (servoStop.style('background-color', "#F3F8FF")))
         .mouseOut(() => (servoStop.style('background-color', "#83EE9E")));
 
     servoFor = createButton('Forward')
         .style('border', '2px solid #83EE9E')
         .position(width / 2 - 100, height / 2 + 120)
-        .mousePressed(servoForT)
-        .mouseReleased(servoForF)
+        .mouseClicked(servoForT)
+        .doubleClicked(servoForF)
         .mouseOver(() => (servoFor.style('background-color', "#F3F8FF")))
         .mouseOut(() => (servoFor.style('background-color', "#83EE9E")));
 
@@ -77,6 +75,14 @@ function setup() {
             .style('text-align', 'center')
             .style('transition-duration', '0.4s');
     }
+
+    fill(0);
+    textSize(22);
+    text('Temperature', width - 50, 40);
+    text(url[2], width, 40);
+
+    text('Humidity', width - 50, 80);
+    text(url[3], width, 40)
 }
 
 
@@ -84,10 +90,12 @@ function draw() {
     ////// the colour of the background
     background("#F3F8FF");
 
+    console.log(url[2].value);
+    console.log(url[3].value);
 }
 
 ////// these are the functions sending data to the switch case based
-////// on the specific mousepressed, this doesnt feel optimizwed but it works
+////// on the specific mouseClicked, this doesnt feel optimizwed but it works
 function ledOn1() {
     ////this sends a boolean state of false to the led1 json function
     sendData('ledOn1');
@@ -138,6 +146,15 @@ function servoForF() {
 }
 
 
+function temp() {
+    sendData('temp');
+}
+
+function humi() {
+    sendData('humi');
+}
+
+
 
 function sendData(val) {
 
@@ -175,10 +192,20 @@ function sendData(val) {
             urlData = false;
             urli = url[4];
             break;
+
+        case 'temp':
+            urlData = true;
+            urli = url[2].celsius;
+
+        case 'humi':
+            urlData = true;
+            urli = url[2].humidity;
+
         default:
             urlData = false;
-
     }
+
+
 
     ////// this function sends the data boolean state for each resource 
     ////// to thinger.io using a json, it uses the switch case above
