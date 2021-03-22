@@ -12,7 +12,7 @@
 #include <Servo.h>
 
 //dht functions and pins
-#define DHTPIN 5
+#define DHTPIN 14
 #define DHTTYPE DHT22
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -27,7 +27,7 @@ Servo servo1;
 // Thinger.io connection parameters
 #define user "xumengh"
 #define device_Id "esp8266"
-#define device_credentials "**********"
+#define device_credentials "_wABmUBI012_&++E"
 ThingerESP8266 thing(user, device_Id, device_credentials);
 
 void setup() {
@@ -47,7 +47,7 @@ void setup() {
   servo1.write(90);
   
   // Setup WiFi
-  thing.add_wifi("******", "*******");
+  thing.add_wifi("freeman", "cogeco388");
   // Define the 'thing' with a name and data direction
 
 //    //LED1
@@ -64,9 +64,18 @@ void setup() {
       thing["LED2"]<< digitalPin(LED2);
 
     //sensor 
-    thing["dht22"] >> [](pson& out){
+//    thing["dht22"] >> [](pson& out){
+//    // Add the values and the corresponding code
+//      out["celsius"] = dht.readTemperature();
+//      out["humidity"] = dht.readHumidity();
+//    };
+
+    thing["dhtTemp"] >> [](pson& out){
     // Add the values and the corresponding code
       out["celsius"] = dht.readTemperature();
+    };
+
+    thing["dhtHumi"] >> [](pson& out){
       out["humidity"] = dht.readHumidity();
     };
 
